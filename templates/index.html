@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block title %}Home - VulnLab{% endblock %}
+
+{% block content %}
+<div class="hero">
+    <h1>🔥 VulnLab</h1>
+    <p class="subtitle">DVWA-Style Vulnerable Web Application</p>
+    <p class="description">
+        An intentionally vulnerable web application designed for learning web application security, 
+        penetration testing, and ethical hacking practices. Practice NoSQL injection, XSS attacks, 
+        and more in a safe, controlled environment.
+    </p>
+    
+    <div class="warning-box">
+        <h3>⚠️ Important Security Notice</h3>
+        <ul>
+            <li>This application contains <strong>intentional security vulnerabilities</strong></li>
+            <li>Designed for <strong>localhost testing only</strong></li>
+            <li><strong>DO NOT</strong> deploy to any public server</li>
+            <li>For educational and ethical hacking practice only</li>
+            <li>Use in a controlled, isolated environment</li>
+        </ul>
+    </div>
+
+    <div class="features-card" style="margin-top: 3rem;">
+        <h2 style="text-align: center; color: var(--primary-color); margin-bottom: 2rem;">🎯 Attack Modules</h2>
+        <div class="features-grid">
+            <div class="feature-card">
+                <div style="font-size: 3rem; margin-bottom: 1rem;">💉</div>
+                <h3>NoSQL Injection</h3>
+                <p>Practice NoSQL injection attacks on 4 difficulty levels</p>
+                <p class="vuln-note">Learn to exploit MongoDB query operators</p>
+            </div>
+            <div class="feature-card">
+                <div style="font-size: 3rem; margin-bottom: 1rem;">⚡</div>
+                <h3>XSS Lab</h3>
+                <p>Master Cross-Site Scripting (Stored & Reflected)</p>
+                <p class="vuln-note">4 difficulty levels with educational feedback</p>
+            </div>
+            <div class="feature-card">
+                <div style="font-size: 3rem; margin-bottom: 1rem;">📊</div>
+                <h3>Progress Tracking</h3>
+                <p>Track your progress and daily streaks</p>
+                <p class="vuln-note">Unlock levels as you complete challenges</p>
+            </div>
+            <div class="feature-card">
+                <div style="font-size: 3rem; margin-bottom: 1rem;">⚙️</div>
+                <h3>Security Levels</h3>
+                <p>Control security settings (Low/Medium/High/Impossible)</p>
+                <p class="vuln-note">See how security measures affect vulnerabilities</p>
+            </div>
+        </div>
+    </div>
+
+    <div style="text-align: center; margin: 3rem 0;">
+        <a href="{{ url_for('register') }}" class="btn btn-primary" style="margin-right: 1rem;">Get Started →</a>
+        <a href="{{ url_for('login') }}" class="btn btn-secondary">Login</a>
+    </div>
+</div>
+{% endblock %}

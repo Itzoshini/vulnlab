@@ -1,0 +1,279 @@
+{% extends "base.html" %}
+
+{% block title %}Defender Mode - Blue Team - VulnLab{% endblock %}
+
+{% block content %}
+<div class="defender-mode-container">
+    <!-- Mode Header -->
+    <div class="mode-header defender-header">
+        <h1>🛡️ DEFENDER MODE - Blue Team Operations</h1>
+        <p class="mode-subtitle">Security configuration dashboard - Limited budget, make trade-offs</p>
+        <a href="{{ url_for('dashboard') }}" class="btn btn-secondary btn-small">← Back to Dashboard</a>
+    </div>
+
+    <!-- Security Metrics Dashboard -->
+    <div class="metrics-dashboard">
+        <div class="metric-card metric-risk">
+            <div class="metric-icon">⚠️</div>
+            <div class="metric-info">
+                <h3>Current Risk</h3>
+                <div class="metric-value risk-value" style="color: {% if current_risk > 70 %}var(--danger-color){% elif current_risk > 40 %}var(--warning-color){% else %}var(--success-color){% endif %}">
+                    {{ current_risk }}%
+                </div>
+                <p class="metric-desc">System risk level</p>
+            </div>
+        </div>
+
+        <div class="metric-card metric-exposure">
+            <div class="metric-icon">🎯</div>
+            <div class="metric-info">
+                <h3>Exposure Level</h3>
+                <div class="metric-value">{{ exposure_level }}%</div>
+                <p class="metric-desc">System exposure</p>
+            </div>
+        </div>
+
+        <div class="metric-card metric-budget">
+            <div class="metric-icon">💰</div>
+            <div class="metric-info">
+                <h3>Security Budget</h3>
+                <div class="metric-value budget-value">
+                    ${{ budget_remaining }} / ${{ security_budget }}
+                </div>
+                <div class="budget-bar">
+                    <div class="budget-fill" style="width: {{ (budget_used / security_budget * 100) }}%"></div>
+                </div>
+                <p class="metric-desc">Used: ${{ budget_used }} | Remaining: ${{ budget_remaining }}</p>
+            </div>
+        </div>
+
+        <div class="metric-card metric-response">
+            <div class="metric-icon">⚡</div>
+            <div class="metric-info">
+                <h3>Response Effectiveness</h3>
+                <div class="metric-value">{{ 100 - current_risk }}%</div>
+                <p class="metric-desc">How well defenses are working</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Security Configuration Dashboard -->
+    <div class="security-config-dashboard">
+        <h2>⚙️ Security Configuration</h2>
+        <p class="config-description">
+            Configure security controls. Limited budget - enabling one may disable another.
+            Some controls may be weak or misleading (security theater).
+        </p>
+
+        <form method="POST" action="{{ url_for('update_security_config') }}" class="config-form">
+            <!-- Input Validation -->
+            <div class="config-section">
+                <div class="config-header">
+                    <h3>🔒 Input Validation</h3>
+                    <label class="toggle-switch">
+                        <input type="checkbox" name="input_validation_enabled" 
+                               {% if security_config.get('input_validation', {}).get('enabled') %}checked{% endif %}>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <p class="config-cost">Cost: $15</p>
+                <div class="config-options">
+                    <label>
+                        <input type="radio" name="input_validation_type" value="blacklist" 
+                               {% if security_config.get('input_validation', {}).get('type') == 'blacklist' %}checked{% endif %}>
+                        Blacklist (Weak - $10)
+                    </label>
+                    <label>
+                        <input type="radio" name="input_validation_type" value="whitelist" 
+                               {% if security_config.get('input_validation', {}).get('type') == 'whitelist' %}checked{% endif %}>
+                        Whitelist (Strong - $15)
+                    </label>
+                    <label>
+                        <input type="radio" name="input_validation_type" value="prepared" 
+                               {% if security_config.get('input_validation', {}).get('type') == 'prepared' %}checked{% endif %}>
+                        Prepared Statements (Best - $20)
+                    </label>
+                </div>
+                <p class="config-warning">⚠️ Blacklist is security theater - easily bypassed</p>
+            </div>
+
+            <!-- Authentication Hardening -->
+            <div class="config-section">
+                <div class="config-header">
+                    <h3>🔐 Authentication Hardening</h3>
+                </div>
+                <div class="config-options">
+                    <label>
+                        <input type="checkbox" name="auth_lockout" 
+                               {% if security_config.get('authentication', {}).get('lockout_enabled') %}checked{% endif %}>
+                        Account Lockout ($10)
+                    </label>
+                    <label>
+                        <input type="checkbox" name="auth_captcha" 
+                               {% if security_config.get('authentication', {}).get('captcha_enabled') %}checked{% endif %}>
+                        CAPTCHA ($5)
+                    </label>
+                    <label>
+                        <input type="checkbox" name="auth_mfa" 
+                               {% if security_config.get('authentication', {}).get('mfa_enabled') %}checked{% endif %}>
+                        Multi-Factor Authentication ($25)
+                    </label>
+                </div>
+            </div>
+
+            <!-- File Upload Restrictions -->
+            <div class="config-section">
+                <div class="config-header">
+                    <h3>📁 File Upload Security</h3>
+                </div>
+                <div class="config-options">
+                    <label>
+                        <input type="checkbox" name="file_restrictions" 
+                               {% if security_config.get('file_upload', {}).get('restrictions_enabled') %}checked{% endif %}>
+                        File Type Restrictions ($10)
+                    </label>
+                    <label>
+                        <input type="checkbox" name="file_sandbox" 
+                               {% if security_config.get('file_upload', {}).get('sandbox_enabled') %}checked{% endif %}>
+                        Sandbox Execution ($20)
+                    </label>
+                </div>
+            </div>
+
+            <!-- CSRF Protection -->
+            <div class="config-section">
+                <div class="config-header">
+                    <h3>🔄 CSRF Protection</h3>
+                    <label class="toggle-switch">
+                        <input type="checkbox" name="csrf_enabled" 
+                               {% if security_config.get('csrf_protection', {}).get('enabled') %}checked{% endif %}>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <p class="config-cost">Cost: $10-15</p>
+                <div class="config-options">
+                    <label>
+                        <input type="radio" name="csrf_implementation" value="weak" 
+                               {% if security_config.get('csrf_protection', {}).get('implementation') == 'weak' %}checked{% endif %}>
+                        Weak Implementation ($10) - Predictable tokens
+                    </label>
+                    <label>
+                        <input type="radio" name="csrf_implementation" value="strong" 
+                               {% if security_config.get('csrf_protection', {}).get('implementation') == 'strong' %}checked{% endif %}>
+                        Strong Implementation ($15) - Cryptographically secure
+                    </label>
+                </div>
+                <p class="config-warning">⚠️ Weak implementation may introduce new vulnerabilities</p>
+            </div>
+
+            <!-- Security Headers -->
+            <div class="config-section">
+                <div class="config-header">
+                    <h3>🛡️ HTTP Security Headers</h3>
+                    <label class="toggle-switch">
+                        <input type="checkbox" name="headers_enabled" 
+                               {% if security_config.get('security_headers', {}).get('enabled') %}checked{% endif %}>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <p class="config-cost">Cost: $5 per header</p>
+                <div class="config-options">
+                    <label><input type="checkbox" name="header_csp" value="1"> Content-Security-Policy ($5)</label>
+                    <label><input type="checkbox" name="header_hsts" value="1"> HSTS ($5)</label>
+                    <label><input type="checkbox" name="header_xframe" value="1"> X-Frame-Options ($5)</label>
+                    <label><input type="checkbox" name="header_xss" value="1"> X-XSS-Protection ($5)</label>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-large">Apply Security Configuration</button>
+        </form>
+    </div>
+
+    <!-- Security Logs -->
+    <div class="security-logs-panel">
+        <h2>📊 Security Logs</h2>
+        <p class="logs-description">
+            Partial, delayed, or noisy logs. Investigate and correlate events.
+            Some entries may be false positives (alert fatigue).
+        </p>
+
+        <div class="logs-filters">
+            <button class="btn-filter active" onclick="filterLogs('all')">All</button>
+            <button class="btn-filter" onclick="filterLogs('attack')">Attacks</button>
+            <button class="btn-filter" onclick="filterLogs('noise')">Noise/False Positives</button>
+            <button class="btn-filter" onclick="filterLogs('critical')">Critical</button>
+        </div>
+
+        <div class="logs-display">
+            {% if security_logs %}
+                {% for log in security_logs %}
+                <div class="log-entry {% if log.is_noise %}log-noise{% endif %} {% if log.severity == 'critical' %}log-critical{% endif %}">
+                    <div class="log-timestamp">{{ log.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</div>
+                    <div class="log-type">{{ log.attack_type|upper }}</div>
+                    <div class="log-details">
+                        <strong>Source:</strong> {{ log.source_ip }}<br>
+                        <strong>Action:</strong> {{ log.action }}<br>
+                        {% if log.is_noise %}
+                            <span class="noise-badge">⚠️ FALSE POSITIVE</span>
+                        {% endif %}
+                    </div>
+                    <div class="log-severity severity-{{ log.severity }}">
+                        {{ log.severity|upper }}
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <p class="no-logs">No security events logged yet</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Investigation Panel -->
+    <div class="investigation-panel">
+        <h2>🔍 Investigation Tools</h2>
+        <div class="investigation-actions">
+            <button class="btn btn-secondary" onclick="correlateEvents()">Correlate Events</button>
+            <button class="btn btn-secondary" onclick="analyzePatterns()">Analyze Patterns</button>
+            <button class="btn btn-secondary" onclick="generateReport()">Generate Report</button>
+        </div>
+        <div class="investigation-results" id="investigationResults">
+            <p>No investigation results yet</p>
+        </div>
+    </div>
+</div>
+
+<script>
+function filterLogs(type) {
+    // Filter logs by type
+    const logs = document.querySelectorAll('.log-entry');
+    logs.forEach(log => {
+        if (type === 'all') {
+            log.style.display = 'block';
+        } else if (type === 'noise' && log.classList.contains('log-noise')) {
+            log.style.display = 'block';
+        } else if (type === 'critical' && log.classList.contains('log-critical')) {
+            log.style.display = 'block';
+        } else if (type === 'attack' && !log.classList.contains('log-noise')) {
+            log.style.display = 'block';
+        } else {
+            log.style.display = 'none';
+        }
+    });
+}
+
+function correlateEvents() {
+    // Correlate security events
+    document.getElementById('investigationResults').innerHTML = '<p>Correlating events... This may take time.</p>';
+}
+
+function analyzePatterns() {
+    // Analyze attack patterns
+    document.getElementById('investigationResults').innerHTML = '<p>Analyzing patterns...</p>';
+}
+
+function generateReport() {
+    // Generate security report
+    document.getElementById('investigationResults').innerHTML = '<p>Generating report...</p>';
+}
+</script>
+{% endblock %}

@@ -1,0 +1,185 @@
+{% extends "base.html" %}
+
+{% block title %}XSS Lab - {{ level_name }} - VulnLab{% endblock %}
+
+{% block content %}
+<div class="level-container">
+    <div class="level-header">
+        <h1>⚡ XSS Lab - {{ level_name }}</h1>
+        <a href="{{ url_for('xss_index') }}" class="btn btn-secondary btn-small">← Back to Lab</a>
+    </div>
+
+    <!-- Mode Indicator -->
+    <div class="mode-indicator mode-indicator-{{ user_mode }}">
+        {% if user_mode == 'defend' %}
+            🛡️ <strong>DEFENDER MODE</strong> - Security protections are active
+        {% else %}
+            🔴 <strong>ATTACK MODE</strong> - Vulnerabilities are exploitable
+        {% endif %}
+    </div>
+
+    {% if success_msg %}
+    <div class="alert alert-success">
+        <h3>{{ success_msg }}</h3>
+        {% if explanation %}
+        <div class="explanation-box">
+            <h4>💡 Why this worked:</h4>
+            <p>{{ explanation }}</p>
+        </div>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    {% if error_msg %}
+    <div class="alert {% if blocked_by_defender %}alert-defender{% else %}alert-error{% endif %}">
+        <h3>{{ error_msg }}</h3>
+        {% if blocked_by_defender and defense_info %}
+        <div class="defender-explanation-box">
+            <h4>🛡️ Defense Explanation:</h4>
+            <p>{{ defense_info }}</p>
+            <div class="defender-details">
+                <h5>📚 Learning Points:</h5>
+                <ul>
+                    <li><strong>Attack Attempted:</strong> Cross-Site Scripting (XSS) payload injection</li>
+                    <li><strong>Defense Applied:</strong> {{ explanation }}</li>
+                    <li><strong>Why This Works:</strong> Input sanitization and output encoding prevent script execution</li>
+                    <li><strong>Real-World Impact:</strong> Without these defenses, attackers could steal cookies, tokens, or perform actions on behalf of users</li>
+                </ul>
+            </div>
+        </div>
+        {% elif explanation %}
+        <div class="explanation-box">
+            <h4>💡 Hint:</h4>
+            <p>{{ explanation }}</p>
+        </div>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    {% if is_completed %}
+    <div class="completion-banner">
+        🎉 Level Completed! You can still practice or move to the next level.
+    </div>
+    {% endif %}
+
+    <div class="challenge-card">
+        <h2>Challenge: Inject XSS Payload</h2>
+        <p class="challenge-description">
+            Submit a comment with a malicious XSS payload. If successful, your payload will execute when the page is viewed.
+            This is a <strong>Stored XSS</strong> vulnerability - your payload is stored in the database.
+        </p>
+
+        <div class="hint-box">
+            <strong>⚙️ Current Security Level: {{ security_level }}</strong>
+            <p style="margin-top: 0.5rem; margin-bottom: 0.5rem;">
+                {% if security_level == 'LOW' %}
+                    <strong>Low Security:</strong> No input sanitization. All XSS payloads will execute.
+                {% elif security_level == 'MEDIUM' %}
+                    <strong>Medium Security:</strong> Basic &lt;script&gt; tags are filtered.
+                {% elif security_level == 'HIGH' %}
+                    <strong>High Security:</strong> Script tags and some event handlers are filtered.
+                {% elif security_level == 'IMPOSSIBLE' %}
+                    <strong>Impossible Security:</strong> Full sanitization and output encoding. No XSS possible.
+                {% endif %}
+            </p>
+            <strong>💡 Hint for {{ level_name }} difficulty:</strong>
+            {% if level == 'easy' %}
+                Try basic script tags: <code>&lt;script&gt;alert('XSS')&lt;/script&gt;</code>
+            {% elif level == 'medium' %}
+                Script tags are filtered. Try event handlers: <code>&lt;img src=x onerror="alert('XSS')"&gt;</code>
+            {% elif level == 'hard' %}
+                Try SVG, iframe, or encoding: <code>&lt;svg onload="alert('XSS')"&gt;</code>
+            {% elif level == 'impossible' %}
+                This difficulty level uses full input sanitization. No XSS is possible.
+            {% endif %}
+        </div>
+
+        <form method="POST" action="{{ url_for('xss_level', level=level) }}" class="challenge-form">
+            <div class="form-group">
+                <label for="content">Comment (XSS Payload):</label>
+                <textarea id="content" name="content" class="form-textarea" 
+                          placeholder="Enter your XSS payload here..." required></textarea>
+                <small class="form-hint">Your payload will be stored and displayed to other users</small>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-block">Submit Payload</button>
+        </form>
+
+        <div class="payload-examples">
+            <h4>Example Payloads:</h4>
+            <div class="code-block">
+                <code>&lt;script&gt;alert('XSS')&lt;/script&gt;</code>
+            </div>
+            <div class="code-block">
+                <code>&lt;img src=x onerror="alert('XSS')"&gt;</code>
+            </div>
+            <div class="code-block">
+                <code>&lt;svg onload="alert('XSS')"&gt;</code>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stored Comments Display -->
+    <div class="comments-section">
+        <h2>📝 Stored Comments</h2>
+        <p class="comments-description">All submitted comments are displayed below. Your XSS payload will execute here if successful.</p>
+        
+        {% if comments %}
+        <div class="comments-list">
+            {% for comment in comments %}
+            <div class="comment-card">
+                <div class="comment-header">
+                    <span class="comment-author">{{ comment.author }}</span>
+                    <span class="comment-date">{{ comment.created_at.strftime('%Y-%m-%d %H:%M') }}</span>
+                </div>
+                <div class="comment-content">
+                    {# REAL XSS EXECUTION/BLOCKING:
+                       - Attack Mode: Use |safe filter - XSS ACTUALLY EXECUTES in browser
+                       - Defender Mode: Use |e filter - XSS is ENCODED and blocked
+                       - This is REAL protection, not simulation #}
+                    {% if user_mode == 'defend' %}
+                        {# Defender Mode: ALWAYS encode output - REAL protection #}
+                        {{ comment.content | e }}
+                    {% elif security_level == 'IMPOSSIBLE' %}
+                        {# Impossible security level: Always encode #}
+                        {{ comment.content | e }}
+                    {% else %}
+                        {# Attack Mode with vulnerable levels: XSS ACTUALLY EXECUTES #}
+                        {{ comment.content | safe }}
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="no-comments">
+            <p>No comments yet. Be the first to submit a payload!</p>
+        </div>
+        {% endif %}
+    </div>
+
+    {% if level != 'easy' %}
+    <div class="educational-info">
+        <h3>📚 Educational Information</h3>
+        <div class="info-content">
+            <h4>How XSS Works:</h4>
+            <ol>
+                <li>Attacker submits malicious JavaScript in user input (forms, URL parameters, etc.)</li>
+                <li>Application stores or reflects the input without proper sanitization</li>
+                <li>When the page is rendered, the malicious script executes in the victim's browser</li>
+                <li>Script runs with the page's privileges, potentially stealing cookies, tokens, or performing actions</li>
+            </ol>
+
+            <h4>Secure Fix (Impossible Level):</h4>
+            <ul>
+                <li><strong>Input Validation:</strong> Whitelist allowed characters, filter HTML tags</li>
+                <li><strong>Output Encoding:</strong> Always encode user input when displaying (HTML entities: &lt; &gt; &quot;)</li>
+                <li><strong>Content Security Policy (CSP):</strong> Restrict script execution sources</li>
+                <li><strong>Use Libraries:</strong> Bleach (Python), DOMPurify (JavaScript) for sanitization</li>
+                <li><strong>Never use |safe filter</strong> in Jinja2 unless absolutely necessary and after proper validation</li>
+            </ul>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

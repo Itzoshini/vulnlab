@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block title %}XSS Vulnerable Module - Submit{% endblock %}
+
+{% block content %}
+<div class="xss-container">
+    <div class="xss-header">
+        <h1>Stored XSS Vulnerable Module</h1>
+        <p class="subtitle">⚠️ Intentionally Vulnerable for Educational Purposes</p>
+    </div>
+
+    <div class="warning-box">
+        <h3>⚠️ Security Warning</h3>
+        <p><strong>This module is intentionally vulnerable to Stored XSS attacks.</strong></p>
+        <ul>
+            <li>User input is stored without sanitization</li>
+            <li>Content is displayed without output encoding</li>
+            <li>Malicious scripts will execute when viewed</li>
+            <li>For educational and testing purposes only</li>
+        </ul>
+    </div>
+
+    <div class="xss-form-container">
+        <div class="xss-form-card">
+            <h2>Submit Content</h2>
+            <p class="form-description">
+                Enter any content below. It will be stored in MongoDB and displayed to all users.
+                <strong>No input validation or sanitization is performed.</strong>
+            </p>
+
+            <!-- ⚠️ VULNERABILITY: No CSRF protection, no input validation -->
+            <form method="POST" action="{{ url_for('xss_submit') }}">
+                <div class="form-group">
+                    <label for="author">Author Name:</label>
+                    <!-- ⚠️ VULNERABILITY: No input validation - XSS possible -->
+                    <input type="text" id="author" name="author" placeholder="Your name (or XSS payload)" class="form-input">
+                    <small class="vuln-hint">⚠️ Try: &lt;script&gt;alert('XSS')&lt;/script&gt;</small>
+                </div>
+                
+                <div class="form-group">
+                    <label for="content">Content:</label>
+                    <!-- ⚠️ VULNERABILITY: No input validation - Stored XSS possible -->
+                    <textarea id="content" name="content" rows="8" placeholder="Enter your content here... XSS payloads will be stored and executed!" class="form-textarea" required></textarea>
+                    <small class="vuln-hint">
+                        ⚠️ Example XSS payloads:
+                        <br>&lt;script&gt;alert('XSS')&lt;/script&gt;
+                        <br>&lt;img src=x onerror="alert('XSS')"&gt;
+                        <br>&lt;svg onload="alert('XSS')"&gt;
+                    </small>
+                </div>
+                
+                <button type="submit" class="btn btn-primary btn-block">Submit Content</button>
+            </form>
+
+            <div class="vuln-info">
+                <h4>Vulnerabilities in this form:</h4>
+                <ul>
+                    <li><strong>No Input Sanitization:</strong> HTML, JavaScript, and scripts are stored as-is</li>
+                    <li><strong>No Output Encoding:</strong> Content displayed using |safe filter (disables escaping)</li>
+                    <li><strong>NoSQL Injection:</strong> Direct MongoDB insertion without validation</li>
+                    <li><strong>No CSRF Protection:</strong> Forms can be submitted from external sites</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="xss-actions">
+        <a href="{{ url_for('xss_display') }}" class="btn btn-secondary">View All Comments</a>
+        <a href="{{ url_for('index') }}" class="btn btn-secondary">Back to Home</a>
+    </div>
+</div>
+{% endblock %}

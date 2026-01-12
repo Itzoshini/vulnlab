@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block title %}Defense Logs - VulnLab{% endblock %}
+
+{% block content %}
+<div class="level-container">
+    <div class="level-header">
+        <h1>🛡️ Defense Logs</h1>
+        <a href="{{ url_for('dashboard') }}" class="btn btn-secondary btn-small">← Back to Dashboard</a>
+    </div>
+
+    <!-- Mode Indicator -->
+    <div class="mode-indicator mode-indicator-defend">
+        🛡️ <strong>DEFENDER MODE</strong> - Security protections are active
+    </div>
+
+    <div class="challenge-card">
+        <h2>📊 Blocked Attack Attempts</h2>
+        <p class="challenge-description">
+            This log shows all attack attempts that were blocked by Defender Mode protections.
+            Each entry includes the attack payload, defense mechanism, and educational explanation.
+        </p>
+
+        {% if logs %}
+        <div class="logs-list">
+            {% for log in logs %}
+            <div class="log-card">
+                <div class="log-header">
+                    <div class="log-info">
+                        <span class="log-module">{{ log.module|upper }}</span>
+                        <span class="log-level">{{ log.level|capitalize }}</span>
+                        <span class="log-timestamp">{{ log.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</span>
+                    </div>
+                    <span class="log-status log-blocked">🛡️ BLOCKED</span>
+                </div>
+                <div class="log-payload">
+                    <strong>Payload:</strong>
+                    <code>{{ log.payload[:200] }}{% if log.payload|length > 200 %}...{% endif %}</code>
+                </div>
+                <div class="log-reason">
+                    <strong>Blocked Reason:</strong> {{ log.reason }}
+                </div>
+                <div class="log-explanation">
+                    <strong>Defense Explanation:</strong>
+                    <p>{{ log.defense_explanation }}</p>
+                </div>
+                <div class="log-security-level">
+                    <strong>Security Level:</strong> {{ log.security_level|upper }}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="no-logs">
+            <p>No blocked attacks yet. Try switching to Attack Mode and attempting an exploit, then switch back to Defender Mode to see the protection in action!</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

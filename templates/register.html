@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block title %}Register - Vulnerable Web App{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-card">
+        <h2>Register</h2>
+
+        <form method="POST" action="{{ url_for('register') }}">
+            {% if error %}
+            <div class="error-message">{{ error }}</div>
+            {% endif %}
+            
+            <div class="form-group">
+                <label for="username">Username:</label>
+                <!-- ⚠️ VULNERABILITY: No input validation, XSS possible -->
+                <input type="text" id="username" name="username" class="form-input" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <!-- ⚠️ VULNERABILITY: No email validation -->
+                <input type="email" id="email" name="email" class="form-input" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="password">Password:</label>
+                <!-- ⚠️ VULNERABILITY: No password strength requirements, plain text storage -->
+                <input type="password" id="password" name="password" class="form-input" required>
+                <small class="form-hint">⚠️ Passwords are stored in plain text (intentional vulnerability)</small>
+            </div>
+            
+            <button type="submit" class="btn btn-primary btn-block">Register</button>
+        </form>
+
+        <p class="auth-link">
+            Already have an account? <a href="{{ url_for('login') }}">Login here</a>
+        </p>
+
+        <div class="vuln-info">
+            <small>⚠️ Vulnerabilities: No input validation, plain text passwords, no rate limiting</small>
+        </div>
+    </div>
+</div>
+{% endblock %}

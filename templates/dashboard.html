@@ -1,0 +1,181 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - VulnLab{% endblock %}
+
+{% block content %}
+<div class="dashboard">
+    <div class="dashboard-header">
+        <h1>Welcome back, <span class="username-highlight">{{ username }}</span>! 🎯</h1>
+        <p class="dashboard-subtitle">
+            {% if user_mode == 'defend' %}
+                🛡️ Defender Mode - Blue Team Training Lab
+            {% else %}
+                🔴 Attack Mode - Red Team Training Lab
+            {% endif %}
+        </p>
+    </div>
+
+    <!-- Mode Selection -->
+    <div class="mode-toggle-card">
+        <h3>🎮 Select Operation Mode</h3>
+        <p class="mode-description">
+            Choose your role. Each mode operates on the SAME application state but exposes different controls and perspectives.
+        </p>
+        <div class="mode-buttons">
+            <a href="{{ url_for('attack_mode') }}" 
+               class="btn-mode btn-mode-attack {% if user_mode == 'attack' %}active{% endif %}">
+                🔴 Attack Mode
+                <span class="mode-subtitle-btn">Red Team - Real exploitation, reconnaissance required</span>
+            </a>
+            <a href="{{ url_for('defender_mode') }}" 
+               class="btn-mode btn-mode-defend {% if user_mode == 'defend' %}active{% endif %}">
+                🛡️ Defender Mode
+                <span class="mode-subtitle-btn">Blue Team - Security configuration, limited budget</span>
+            </a>
+        </div>
+        <p class="mode-note">
+            <strong>Current Mode:</strong> 
+            {% if user_mode == 'defend' %}
+                Defender Mode - Security configuration dashboard
+            {% else %}
+                Attack Mode - Real-world attack simulation
+            {% endif %}
+        </p>
+    </div>
+
+    <!-- Security Level Selector -->
+    <div class="security-level-card">
+        <h3>⚙️ Security Level</h3>
+        <form method="POST" action="{{ url_for('set_security') }}" class="security-form">
+            <div class="security-buttons">
+                <button type="submit" name="level" value="low" class="btn-security {% if security_level == 'LOW' %}active{% endif %}">Low</button>
+                <button type="submit" name="level" value="medium" class="btn-security {% if security_level == 'MEDIUM' %}active{% endif %}">Medium</button>
+                <button type="submit" name="level" value="high" class="btn-security {% if security_level == 'HIGH' %}active{% endif %}">High</button>
+                <button type="submit" name="level" value="impossible" class="btn-security {% if security_level == 'IMPOSSIBLE' %}active{% endif %}">Impossible</button>
+            </div>
+        </form>
+        <p class="security-note">Current: <strong>{{ security_level }}</strong> - Controls input validation and output encoding</p>
+    </div>
+
+    <!-- Streak Counter -->
+    <div class="streak-card">
+        <div class="streak-icon">🔥</div>
+        <div class="streak-info">
+            <h2>Daily Streak</h2>
+            <p class="streak-count">{{ progress.streak }} days</p>
+            <p class="streak-text">Keep practicing daily to maintain your streak!</p>
+        </div>
+    </div>
+
+    <!-- Progress Bars -->
+    <div class="progress-card">
+        <h3>Overall Progress</h3>
+        {% if user_mode == 'defend' %}
+            <div class="progress-section">
+                <h4>🛡️ Defender Progress</h4>
+                {% set defender_completed = progress.defender_completed_levels|length %}
+                {% set defender_percent = (defender_completed / 8 * 100)|int if 8 > 0 else 0 %}
+                <div class="progress-bar-container">
+                    <div class="progress-bar-fill progress-bar-defender" style="width: {{ defender_percent }}%"></div>
+                </div>
+                <p class="progress-text">{{ defender_completed }} / 8 defense levels completed ({{ defender_percent }}%)</p>
+            </div>
+            <div class="progress-section" style="margin-top: 1.5rem; opacity: 0.6;">
+                <h4>🔴 Attack Progress</h4>
+                {% set attack_completed = progress.completed_levels|length %}
+                {% set attack_percent = (attack_completed / 8 * 100)|int if 8 > 0 else 0 %}
+                <div class="progress-bar-container">
+                    <div class="progress-bar-fill progress-bar-attack" style="width: {{ attack_percent }}%"></div>
+                </div>
+                <p class="progress-text">{{ attack_completed }} / 8 attack levels completed ({{ attack_percent }}%)</p>
+            </div>
+        {% else %}
+            <div class="progress-section">
+                <h4>🔴 Attack Progress</h4>
+                {% set attack_completed = progress.completed_levels|length %}
+                {% set attack_percent = (attack_completed / 8 * 100)|int if 8 > 0 else 0 %}
+                <div class="progress-bar-container">
+                    <div class="progress-bar-fill progress-bar-attack" style="width: {{ attack_percent }}%"></div>
+                </div>
+                <p class="progress-text">{{ attack_completed }} / 8 attack levels completed ({{ attack_percent }}%)</p>
+            </div>
+            <div class="progress-section" style="margin-top: 1.5rem; opacity: 0.6;">
+                <h4>🛡️ Defender Progress</h4>
+                {% set defender_completed = progress.defender_completed_levels|length %}
+                {% set defender_percent = (defender_completed / 8 * 100)|int if 8 > 0 else 0 %}
+                <div class="progress-bar-container">
+                    <div class="progress-bar-fill progress-bar-defender" style="width: {{ defender_percent }}%"></div>
+                </div>
+                <p class="progress-text">{{ defender_completed }} / 8 defense levels completed ({{ defender_percent }}%)</p>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Module Cards -->
+    <div class="modules-grid">
+        <div class="module-card">
+            <div class="module-icon">💉</div>
+            <h3>NoSQL Injection</h3>
+            <p class="module-description">Practice NoSQL injection attacks on different security levels</p>
+            <a href="{{ url_for('nosql_index') }}" class="btn btn-primary">Enter Lab →</a>
+            <div class="module-progress">
+                {% set nosql_completed = 0 %}
+                {% for level in progress.completed_levels %}
+                    {% if level.startswith('nosql_injection_') %}
+                        {% set nosql_completed = nosql_completed + 1 %}
+                    {% endif %}
+                {% endfor %}
+                <span>{{ nosql_completed }}/4 levels completed</span>
+            </div>
+        </div>
+
+        <div class="module-card">
+            <div class="module-icon">⚡</div>
+            <h3>XSS Lab</h3>
+            <p class="module-description">Learn Cross-Site Scripting (Reflected & Stored XSS)</p>
+            <a href="{{ url_for('xss_index') }}" class="btn btn-primary">Enter Lab →</a>
+            <div class="module-progress">
+                {% set xss_completed = 0 %}
+                {% for level in progress.completed_levels %}
+                    {% if level.startswith('xss_') %}
+                        {% set xss_completed = xss_completed + 1 %}
+                    {% endif %}
+                {% endfor %}
+                <span>{{ xss_completed }}/4 levels completed</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Activity -->
+    <div class="activity-card">
+        <h3>📊 Quick Stats</h3>
+        <div class="stats-grid">
+            <div class="stat-item">
+                <div class="stat-value">{{ progress.completed_levels|length }}</div>
+                <div class="stat-label">Attack Levels</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value">{{ progress.defender_completed_levels|length }}</div>
+                <div class="stat-label">Defense Levels</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value">{{ progress.streak }}</div>
+                <div class="stat-label">Day Streak</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value">8</div>
+                <div class="stat-label">Total Levels</div>
+            </div>
+        </div>
+    </div>
+
+    {% if user_mode == 'defend' %}
+    <!-- Defense Logs Link -->
+    <div class="defense-logs-card">
+        <h3>🛡️ Defense Operations</h3>
+        <p>View blocked attack attempts and defense logs</p>
+        <a href="{{ url_for('defense_logs') }}" class="btn btn-secondary">View Defense Logs →</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

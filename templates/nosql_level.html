@@ -1,0 +1,148 @@
+{% extends "base.html" %}
+
+{% block title %}NoSQL Injection - {{ level_name }} - VulnLab{% endblock %}
+
+{% block content %}
+<div class="level-container">
+    <div class="level-header">
+        <h1>💉 NoSQL Injection - {{ level_name }}</h1>
+        <a href="{{ url_for('nosql_index') }}" class="btn btn-secondary btn-small">← Back to Lab</a>
+    </div>
+
+    <!-- Mode Indicator -->
+    <div class="mode-indicator mode-indicator-{{ user_mode }}">
+        {% if user_mode == 'defend' %}
+            🛡️ <strong>DEFENDER MODE</strong> - Security protections are active
+        {% else %}
+            🔴 <strong>ATTACK MODE</strong> - Vulnerabilities are exploitable
+        {% endif %}
+    </div>
+
+    {% if success_msg %}
+    <div class="alert alert-success">
+        <h3>{{ success_msg }}</h3>
+        {% if explanation %}
+        <div class="explanation-box">
+            <h4>💡 Why this worked:</h4>
+            <p>{{ explanation }}</p>
+        </div>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    {% if error_msg %}
+    <div class="alert {% if blocked_by_defender %}alert-defender{% else %}alert-error{% endif %}">
+        <h3>{{ error_msg }}</h3>
+        {% if blocked_by_defender and defense_info %}
+        <div class="defender-explanation-box">
+            <h4>🛡️ Defense Explanation:</h4>
+            <p>{{ defense_info }}</p>
+            <div class="defender-details">
+                <h5>📚 Learning Points:</h5>
+                <ul>
+                    <li><strong>Attack Attempted:</strong> NoSQL Injection using MongoDB operators</li>
+                    <li><strong>Defense Applied:</strong> {{ explanation }}</li>
+                    <li><strong>Why This Works:</strong> The application enforces parameterized queries and blocks dangerous operators</li>
+                    <li><strong>Real-World Impact:</strong> Without these defenses, attackers could bypass authentication and access unauthorized data</li>
+                </ul>
+            </div>
+        </div>
+        {% elif explanation %}
+        <div class="explanation-box">
+            <h4>💡 Hint:</h4>
+            <p>{{ explanation }}</p>
+        </div>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    {% if is_completed %}
+    <div class="completion-banner">
+        🎉 Level Completed! You can still practice or move to the next level.
+    </div>
+    {% endif %}
+
+    <div class="challenge-card">
+        <h2>Challenge: Bypass Authentication</h2>
+        <p class="challenge-description">
+            The login form below is vulnerable to NoSQL injection. Your goal is to bypass authentication 
+            without knowing valid credentials. Try injecting MongoDB operators in the username and password fields.
+        </p>
+
+        <div class="hint-box">
+            <strong>⚙️ Current Security Level: {{ security_level }}</strong>
+            <p style="margin-top: 0.5rem; margin-bottom: 0.5rem;">
+                {% if security_level == 'LOW' %}
+                    <strong>Low Security:</strong> All NoSQL operators are accepted. Direct injection possible.
+                {% elif security_level == 'MEDIUM' %}
+                    <strong>Medium Security:</strong> Some dangerous operators ($where, $function) are filtered.
+                {% elif security_level == 'HIGH' %}
+                    <strong>High Security:</strong> Only basic operators ($ne, $gt, $lt, $regex) are allowed.
+                {% elif security_level == 'IMPOSSIBLE' %}
+                    <strong>Impossible Security:</strong> Fully secure - parameterized queries prevent all injection.
+                {% endif %}
+            </p>
+            <strong>💡 Hint for {{ level_name }} difficulty:</strong>
+            {% if level == 'easy' %}
+                Try sending JSON with MongoDB operators like: <code>{"$ne": null}</code> or <code>{"$gt": ""}</code>
+            {% elif level == 'medium' %}
+                Try MongoDB operators like <code>$regex</code> in the username or password field.
+            {% elif level == 'hard' %}
+                Use multiple operators in both fields to bypass authentication.
+            {% elif level == 'impossible' %}
+                This difficulty level uses proper parameterized queries. No injection is possible.
+            {% endif %}
+        </div>
+
+        <form method="POST" action="{{ url_for('nosql_level', level=level) }}" class="challenge-form">
+            <div class="form-group">
+                <label for="username">Username:</label>
+                <input type="text" id="username" name="username" class="form-input" 
+                       placeholder="Enter username or payload" required>
+                <small class="form-hint">Try injecting MongoDB operators here</small>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password:</label>
+                <input type="text" id="password" name="password" class="form-input" 
+                       placeholder="Enter password or payload" required>
+                <small class="form-hint">Try injecting MongoDB operators here</small>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-block">Attempt Exploitation</button>
+        </form>
+
+        <div class="payload-examples">
+            <h4>Example Payloads (JSON format):</h4>
+            <div class="code-block">
+                <code>Username: {"$ne": null}<br>Password: {"$ne": null}</code>
+            </div>
+            <div class="code-block">
+                <code>Username: admin<br>Password: {"$regex": ".*"}</code>
+            </div>
+        </div>
+    </div>
+
+    {% if level != 'easy' %}
+    <div class="educational-info">
+        <h3>📚 Educational Information</h3>
+        <div class="info-content">
+            <h4>How NoSQL Injection Works:</h4>
+            <ol>
+                <li>When user input is directly inserted into MongoDB queries without sanitization, operators can be injected</li>
+                <li>MongoDB operators like <code>$ne</code> (not equal), <code>$gt</code> (greater than), <code>$regex</code> can bypass authentication</li>
+                <li>In vulnerable code, if input is parsed as JSON/dict, PyMongo interprets it as query operators</li>
+            </ol>
+
+            <h4>Secure Fix (Impossible Level):</h4>
+            <ul>
+                <li>Use parameterized queries with explicit type checking</li>
+                <li>Validate and sanitize all user inputs</li>
+                <li>Never parse user input as JSON/dict for database queries</li>
+                <li>Use input validation libraries and whitelist allowed values</li>
+            </ul>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block title %}Level Locked - VulnLab{% endblock %}
+
+{% block content %}
+<div class="locked-container">
+    <div class="locked-card">
+        <div class="locked-icon">🔒</div>
+        <h1>Level Locked</h1>
+        <p class="locked-message">You need to complete the previous level before accessing <strong>{{ module }} - {{ level }}</strong>.</p>
+        <div class="locked-actions">
+            <a href="{{ url_for('dashboard') }}" class="btn btn-primary">← Back to Dashboard</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

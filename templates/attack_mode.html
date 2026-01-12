@@ -1,0 +1,265 @@
+{% extends "base.html" %}
+
+{% block title %}Attack Mode - Red Team - VulnLab{% endblock %}
+
+{% block content %}
+<div class="attack-mode-container">
+    <!-- Mode Header -->
+    <div class="mode-header attack-header">
+        <h1>🔴 ATTACK MODE - Red Team Operations</h1>
+        <p class="mode-subtitle">Real-world attack simulation - No hints, reconnaissance required</p>
+        <a href="{{ url_for('dashboard') }}" class="btn btn-secondary btn-small">← Back to Dashboard</a>
+    </div>
+
+    <!-- Attack Metrics Dashboard -->
+    <div class="metrics-dashboard">
+        <div class="metric-card metric-noise">
+            <div class="metric-icon">📊</div>
+            <div class="metric-info">
+                <h3>Noise Level</h3>
+                <div class="metric-value">{{ noise_level }}%</div>
+                <div class="noise-bar">
+                    <div class="noise-fill" style="width: {{ noise_level }}%"></div>
+                </div>
+                <p class="metric-desc">Higher noise = higher detection probability</p>
+            </div>
+        </div>
+
+        <div class="metric-card metric-stealth">
+            <div class="metric-icon">🥷</div>
+            <div class="metric-info">
+                <h3>Stealth Rating</h3>
+                <div class="metric-value">{{ stealth_rating }}%</div>
+                <p class="metric-desc">Your ability to avoid detection</p>
+            </div>
+        </div>
+
+        <div class="metric-card metric-risk">
+            <div class="metric-icon">⚠️</div>
+            <div class="metric-info">
+                <h3>Risk Score</h3>
+                <div class="metric-value">{{ risk_score }}%</div>
+                <p class="metric-desc">Cumulative risk from all actions</p>
+            </div>
+        </div>
+
+        <div class="metric-card metric-exposure">
+            <div class="metric-icon">🎯</div>
+            <div class="metric-info">
+                <h3>Exposure Score</h3>
+                <div class="metric-value">{{ exposure_score }}%</div>
+                <p class="metric-desc">System exposure level</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Attack Interface -->
+    <div class="attack-interface-grid">
+        <!-- Reconnaissance Panel -->
+        <div class="attack-panel recon-panel">
+            <h2>🔍 Reconnaissance</h2>
+            <p class="panel-description">Gather intelligence before attacking. High noise but necessary.</p>
+            
+            <div class="recon-actions">
+                <button class="btn-recon" onclick="performRecon('endpoints')">
+                    Scan Endpoints
+                </button>
+                <button class="btn-recon" onclick="performRecon('technologies')">
+                    Detect Technologies
+                </button>
+                <button class="btn-recon" onclick="performRecon('vulnerabilities')">
+                    Probe for Vulnerabilities
+                </button>
+                <button class="btn-recon" onclick="performRecon('users')">
+                    Enumerate Users
+                </button>
+            </div>
+
+            <div class="recon-results" id="reconResults">
+                <h3>Reconnaissance Data</h3>
+                <div class="recon-data-display">
+                    {% if recon_data %}
+                        <pre>{{ recon_data | tojson(indent=2) }}</pre>
+                    {% else %}
+                        <p class="no-data">No reconnaissance data yet. Start gathering intelligence.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- HTTP Request Viewer/Editor -->
+        <div class="attack-panel http-panel">
+            <h2>🌐 HTTP Request Manipulation</h2>
+            <p class="panel-description">View and manipulate raw HTTP requests</p>
+            
+            <div class="http-editor">
+                <div class="http-method-selector">
+                    <select id="httpMethod">
+                        <option>GET</option>
+                        <option>POST</option>
+                        <option>PUT</option>
+                        <option>DELETE</option>
+                    </select>
+                    <input type="text" id="httpPath" placeholder="/api/endpoint" value="/nosql/easy">
+                </div>
+                
+                <div class="http-headers">
+                    <h4>Headers</h4>
+                    <textarea id="httpHeaders" placeholder="Content-Type: application/json&#10;User-Agent: ..."></textarea>
+                </div>
+                
+                <div class="http-body">
+                    <h4>Body</h4>
+                    <textarea id="httpBody" placeholder='{"username": "...", "password": "..."}'></textarea>
+                </div>
+                
+                <button class="btn btn-primary" onclick="sendHttpRequest()">Send Request</button>
+            </div>
+
+            <div class="http-response" id="httpResponse">
+                <h4>Response</h4>
+                <pre id="responseContent">No response yet</pre>
+            </div>
+        </div>
+    </div>
+
+    <!-- Attack Scenarios -->
+    <div class="attack-scenarios">
+        <h2>🎯 Attack Scenarios</h2>
+        <p class="scenarios-description">
+            Multi-step attack chains required. Partial exploitation yields no reward.
+        </p>
+
+        <div class="scenarios-grid">
+            <div class="scenario-card">
+                <h3>💉 NoSQL Injection Chain</h3>
+                <p>Bypass authentication → Extract data → Privilege escalation</p>
+                <div class="scenario-progress">
+                    <div class="progress-steps">
+                        <span class="step">1. Recon</span>
+                        <span class="step">2. Injection</span>
+                        <span class="step">3. Data Exfil</span>
+                    </div>
+                </div>
+                <button class="btn btn-danger" onclick="startAttackChain('nosql')">Start Chain</button>
+            </div>
+
+            <div class="scenario-card">
+                <h3>⚡ XSS Session Theft</h3>
+                <p>Stored XSS → Session hijacking → Account takeover</p>
+                <div class="scenario-progress">
+                    <div class="progress-steps">
+                        <span class="step">1. Payload</span>
+                        <span class="step">2. Execution</span>
+                        <span class="step">3. Theft</span>
+                    </div>
+                </div>
+                <button class="btn btn-danger" onclick="startAttackChain('xss')">Start Chain</button>
+            </div>
+
+            <div class="scenario-card">
+                <h3>🔐 Authentication Abuse</h3>
+                <p>Brute force → Password reset flaw → Account access</p>
+                <div class="scenario-progress">
+                    <div class="progress-steps">
+                        <span class="step">1. Enumeration</span>
+                        <span class="step">2. Brute Force</span>
+                        <span class="step">3. Reset Bypass</span>
+                    </div>
+                </div>
+                <button class="btn btn-danger" onclick="startAttackChain('auth')">Start Chain</button>
+            </div>
+
+            <div class="scenario-card">
+                <h3>📁 File Upload RCE</h3>
+                <p>Upload bypass → Shell upload → Command execution</p>
+                <div class="scenario-progress">
+                    <div class="progress-steps">
+                        <span class="step">1. Upload Test</span>
+                        <span class="step">2. Bypass</span>
+                        <span class="step">3. RCE</span>
+                    </div>
+                </div>
+                <button class="btn btn-danger" onclick="startAttackChain('file')">Start Chain</button>
+            </div>
+
+            <div class="scenario-card">
+                <h3>🔄 CSRF Chain</h3>
+                <p>CSRF + IDOR + Broken Access Control</p>
+                <div class="scenario-progress">
+                    <div class="progress-steps">
+                        <span class="step">1. CSRF</span>
+                        <span class="step">2. IDOR</span>
+                        <span class="step">3. Escalation</span>
+                    </div>
+                </div>
+                <button class="btn btn-danger" onclick="startAttackChain('csrf')">Start Chain</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Attack Logs -->
+    <div class="attack-logs-panel">
+        <h2>📋 Attack Log</h2>
+        <div class="logs-display" id="attackLogs">
+            <p class="no-logs">No attack actions logged yet</p>
+        </div>
+    </div>
+</div>
+
+<script>
+function performRecon(type) {
+    // Add noise for reconnaissance
+    fetch('/api/recon', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({type: type})
+    })
+    .then(r => r.json())
+    .then(data => {
+        updateReconResults(data);
+        updateNoiseLevel(2); // Recon adds noise
+    });
+}
+
+function sendHttpRequest() {
+    const method = document.getElementById('httpMethod').value;
+    const path = document.getElementById('httpPath').value;
+    const headers = document.getElementById('httpHeaders').value;
+    const body = document.getElementById('httpBody').value;
+    
+    fetch('/api/http_request', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({method, path, headers, body})
+    })
+    .then(r => r.json())
+    .then(data => {
+        document.getElementById('responseContent').textContent = JSON.stringify(data, null, 2);
+    });
+}
+
+function startAttackChain(type) {
+    fetch('/api/start_attack_chain', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({chain_type: type})
+    })
+    .then(r => r.json())
+    .then(data => {
+        alert('Attack chain started: ' + type);
+        location.reload();
+    });
+}
+
+function updateReconResults(data) {
+    const resultsDiv = document.getElementById('reconResults');
+    resultsDiv.innerHTML = '<h3>Reconnaissance Data</h3><pre>' + JSON.stringify(data, null, 2) + '</pre>';
+}
+
+function updateNoiseLevel(increase) {
+    // Noise will be updated server-side
+    location.reload();
+}
+</script>
+{% endblock %}

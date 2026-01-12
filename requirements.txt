@@ -1,0 +1,5 @@
+# Vulnerable Web Application - Python Dependencies
+# ⚠️ WARNING: This application is intentionally vulnerable for educational purposes only
+
+Flask==3.0.0
+pymongo==4.6.0

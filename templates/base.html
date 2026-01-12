@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Vulnerable Web App - Educational Only{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- ⚠️ WARNING BANNER -->
+    <div class="warning-banner">
+        ⚠️ WARNING: This application is for educational use only. Do NOT deploy publicly. FOR LOCALHOST USE ONLY.
+    </div>
+
+    <nav class="navbar">
+        <div class="container">
+            <a href="{{ url_for('index') }}" class="logo">🔥 VulnLab</a>
+            <ul class="nav-links">
+                <li><a href="{{ url_for('index') }}">Home</a></li>
+                {% if session.username %}
+                    <li><a href="{{ url_for('dashboard') }}">Dashboard</a></li>
+                    <li><a href="{{ url_for('nosql_index') }}">NoSQL Injection</a></li>
+                    <li><a href="{{ url_for('xss_index') }}">XSS Lab</a></li>
+                    <li><a href="{{ url_for('logout') }}">Logout ({{ session.username }})</a></li>
+                    {% if session.get('user_mode') == 'defend' %}
+                        <li><span class="nav-mode-indicator nav-mode-defend">🛡️ Defender</span></li>
+                    {% else %}
+                        <li><span class="nav-mode-indicator nav-mode-attack">🔴 Attack</span></li>
+                    {% endif %}
+                {% else %}
+                    <li><a href="{{ url_for('login') }}">Login</a></li>
+                    <li><a href="{{ url_for('register') }}">Register</a></li>
+                {% endif %}
+            </ul>
+        </div>
+    </nav>
+
+    <main class="container">
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>⚠️ Educational Purpose Only - Intentionally Vulnerable Application</p>
+            <p>For localhost testing only. Never deploy to production.</p>
+        </div>
+    </footer>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>
