@@ -330,17 +330,14 @@ Password: {"$ne": null}
 <td align="center">
 <img src="https://ui-avatars.com/api/?name=Roshini+B&background=FF6B6B&color=fff&size=100&bold=true" width="100px;" alt="Roshini B"/><br />
 <sub><b>Roshini B</b></sub><br />
-<sub>Core Developer</sub>
 </td>
 <td align="center">
 <img src="https://ui-avatars.com/api/?name=Poorvaa+Sri+B&background=4ECDC4&color=fff&size=100&bold=true" width="100px;" alt="Poorvaa Sri B"/><br />
 <sub><b>Poorvaa Sri B</b></sub><br />
-<sub>Security Architect</sub>
 </td>
 <td align="center">
 <img src="https://ui-avatars.com/api/?name=Srivarshini+K&background=FFD93D&color=333&size=100&bold=true" width="100px;" alt="Srivarshini K"/><br />
 <sub><b>Srivarshini K</b></sub><br />
-<sub>Backend Engineer</sub>
 </td>
 </tr>
 </table>
