@@ -425,9 +425,9 @@ Educational purposes only - Not for production use
 
 For questions, suggestions, or issues:
 
-- 🐛 [Report Bug](https://github.com/yourusername/vulnlab/issues)
-- 💡 [Request Feature](https://github.com/yourusername/vulnlab/issues)
-- 📧 Email: vulnlab@example.com
+- 🐛 [Report Bug](https://github.com/srivarshini-karthikeyan/vulnlab/issues)
+- 💡 [Request Feature](https://github.com/srivarshini-karthikeyan/vulnlab/issues)
+- 📧 Email: [Roshini](roshinibk1912@gmail.com), [Poorvaa Sri](poorvaabaskar@gmail.com), [Srivarshini K](srivarshinikarthikeyanoffl@gmail.com)
 
 ---
 
