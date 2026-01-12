@@ -420,14 +420,16 @@ Educational purposes only - Not for production use
 - [Flask Security](https://flask.palletsprojects.com/en/2.0.x/security/)
 
 ---
-
 ## 📧 **Contact**
 
 For questions, suggestions, or issues:
 
-- 🐛 [Report Bug](https://github.com/srivarshini-karthikeyan/vulnlab/issues)
-- 💡 [Request Feature](https://github.com/srivarshini-karthikeyan/vulnlab/issues)
-- 📧 Email: [Roshini](roshinibk1912@gmail.com), [Poorvaa Sri](poorvaabaskar@gmail.com), [Srivarshini K](srivarshinikarthikeyanoffl@gmail.com)
+- 🐛 **Report a Bug:** https://github.com/srivarshini-karthikeyan/vulnlab/issues  
+- 💡 **Request a Feature:** https://github.com/srivarshini-karthikeyan/vulnlab/issues  
+- 📧 **Email:**  
+  - roshinibk1912@gmail.com  
+  - poorvaabaskar@gmail.com  
+  - srivarshinikarthikeyanoffl@gmail.com  
 
 ---
 
@@ -437,9 +439,9 @@ For questions, suggestions, or issues:
 
 **Made with ❤️ by Roshini B, Poorvaa Sri B & Srivarshini K**
 
-![Visitors](https://visitor-badge.laobi.icu/badge?page_id=vulnlab.readme)
-![Last Commit](https://img.shields.io/github/last-commit/yourusername/vulnlab?style=flat-square)
-![Issues](https://img.shields.io/github/issues/yourusername/vulnlab?style=flat-square)
+![Visitors](https://visitor-badge.laobi.icu/badge?page_id=srivarshini-karthikeyan.vulnlab)
+![Last Commit](https://img.shields.io/github/last-commit/srivarshini-karthikeyan/vulnlab?style=flat-square)
+![Issues](https://img.shields.io/github/issues/srivarshini-karthikeyan/vulnlab?style=flat-square)
 
 </div>
 
